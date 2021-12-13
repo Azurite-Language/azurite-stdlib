@@ -1,0 +1,1 @@
+(translate ("sqrt" param) (python "" "__import__(\"math\").sqrt({param})") (javascript "" "Maths.sqrt({param})"))

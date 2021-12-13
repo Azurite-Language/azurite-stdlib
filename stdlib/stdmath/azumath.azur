@@ -1,0 +1,16 @@
+(macro ("//" x...) ())
+
+(macro ("azumath" lang)
+    (import "../type")
+    (import "./derivative")
+    (import "./basic_simplification")
+    (import "./addition")
+    (import "./display")
+
+
+
+    (derivative lang)
+    (basic_simplification lang)
+    (addition lang)
+    (display lang)
+)

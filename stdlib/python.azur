@@ -1,0 +1,90 @@
+(macro ("//" x) ())
+
+(// (Builtin section))
+(translate ("python") ("str") (python "" "py"))
+(translate ("or" a b) ("num" "num" "num") (python "" "{a} or {b}"))
+(translate ("and" a b) ("num" "num" "num") (python "" "{a} and {b}"))
+(translate (">" a b) ("num" "num" "bool") (python "" "{a} > {b}"))
+(translate ("<" a b) ("num" "num" "bool") (python "" "{a} < {b}"))
+
+
+
+
+(// (Global section))
+(translate ("if" cond positive negative) ("bool" "#1..." "#1..." "#1...") (python "" "{positive} if {cond} else {negative} "))
+(translate ("print" x) ("#1" "unit") (python "" "print({x})"))
+(translate ("for" 'variable' max body) ("string" "num" "unit" "unit") (python "" "for {variable} in range({max}): \n\t{body}"))
+(translate ("begin" x...) ("unit..." "unit") (python "" "{x '\n\t' '' ''}"))
+
+
+(// (Builtin section))
+
+(// arithmetic)
+(translate ("+" a...) ("num..." "num") (python "import sys \nsys.path.append('{libpath}/stdlib/pylib/') \nimport Azurite" "Azurite.add_list([{a ','}])"))
+(translate ("-" a...) ("num..." "num") (python "import sys \nsys.path.append('{libpath}/stdlib/pylib/') \nimport Azurite" "Azurite.sbt_list({a ','})"))
+(translate ("*" a...) ("num..." "num") (python "import sys \nsys.path.append('{libpath}/stdlib/pylib/') \nimport Azurite" "Azurite.mtp_list({a ','})"))
+(translate ("/" a...) ("num..." "num") (python "import sys \nsys.path.append('{libpath}/stdlib/pylib/') \nimport Azurite" "Azurite.div_list({a ','})"))
+(translate ("mod" a b) ("num" "num" "num") (python "" "{a} % {b}"))
+
+(// maths)
+(translate (round a) ("num" "num") (python "" "(round({a}))"))
+(translate (sin a) ("num" "num") (python "import math" "math.sin({a})" ))
+(translate (cos a) ("num" "num") (python "import math" "math.cos({a})"))
+(translate (tan a) ("num" "num") (python "import math" "math.tan({a})"))
+(translate (sqrt a) ("num" "num") (python "import math" "math.sqrt({a})"))
+(translate (exp a) ("num" "num") (python "import math" "math.exp({a})" ))
+(translate (pow n e) ("num" "num" "num") (python "" "({e}**{n})"))
+(translate (ln a) ("num" "num") (python "import math" "math.log({a})" ))
+
+(// boolean)
+(translate ("=" a...) ("#1..." "bool") (python "import sys \nsys.path.append('{libpath}/stdlib/pylib/') \nimport Azurite" "Azurite.equal([{a ','}])" ))
+(translate (">" a...) ("#1..." "bool") (python "import sys \nsys.path.append('{libpath}/stdlib/pylib/') \nimport Azurite" "Azurite.supe([{a ','}])"))
+(translate (">=" a...) ("#1..." "bool") (python "import sys \nsys.path.append('{libpath}/stdlib/pylib/') \nimport Azurite" "Azurite.supegal([{a ','}])"))
+(translate ("<" a...) ("#1..." "bool") (python "import sys \nsys.path.append('{libpath}/stdlib/pylib/') \nimport Azurite" "Azurite.infe([{a ','}])"))
+(translate ("<=" a...) ("#1..." "bool") (python "import sys \nsys.path.append('{libpath}/stdlib/pylib/') \nimport Azurite" "Azurite.infegal([{a ','}])"))
+(translate ("or" a...) ("bool..." "bool") (python "import sys \nsys.path.append('{libpath}/stdlib/pylib/') \nimport Azurite" "Azurite.azur_or([{a ','}])"))
+(translate ("and" a...) ("bool..." "bool") (python "import sys \nsys.path.append('{libpath}/stdlib/pylib/') \nimport Azurite" "Azurite.azur_and([{a ','}])"))
+(translate ("xor" a...) ("bool..." "bool") (python "import sys \nsys.path.append('{libpath}/stdlib/pylib/') \nimport Azurite" "Azurite.azur_xor([{a ','}])"))
+(translate ("not" a) ("bool" "bool") (python "" "(not {a})"))
+(translate ("false") ("bool") (python "" "False"))
+(translate ("true") ("bool") (python "" "True"))
+
+(// conversion)
+(translate ("NtoS" a) ("num" "str") (python "" "str({a})"))
+(translate ("StoN" a) ("str" "num") (python "" "int({a})"))
+(translate ("NtoB" a) ("num" "bool"))
+(translate ("BtoN" a) ("bool" "num"))
+(translate ("StoB" a) ("str" "bool"))
+(translate ("BtoS" a) ("str" "bool"))
+
+(// string)
+(translate ("is_num" a) ("str" "bool") (python "" "{a}.isnumeric()"))
+(translate ("cat" strings) ("str..." "str"))
+(translate ("starts_with_s" string subseq) ("str" "str" "bool") (python "" "{string}.startswith({subseq})"))
+(translate ("ends_with_s" string subseq) ("str" "str" "bool") (python "" "{string}.endswith({subseq})"))
+(translate ("char" string n) ("str" "num" "str") (python "" "{string}[{n}]"))
+(translate ("substr" string index count) ("string" "num" "num")(python "" "{string}[{index}+{count}+1]"))
+
+
+(// list)
+(translate ("empty_list") ("#1...") (python "" "[]"))
+(translate ("index" n lst) ("num" "#1..." "#1") (python  "" "{lst}[{n}]"))
+(translate ("list_equal" a b) ("#1..." "#1..." bool) (python "" "({a} == {b})"))
+(translate ("count" a) ("#1..." "num") (python "" "len({a})"))
+(translate ("last_index" a) ("#1..." "num") (python "" "(len({a})-1)"))
+(translate ("sub" lst index count) ("#1..." "num" "num" "#1...") (python "" "{lst}[{index}+{count}+1]"))
+(translate ("merge" a b) ("#1..." "#1..." "#1...") (python "" "({a}+{b})"))
+(translate ("starts_with_l" lst subseq) ("#1..." "#1..." "bool") (python "" "({lst}[:len({subseq})]=={subseq})"))
+(translate ("ends_with_l" lst subseq) ("#1..." "#1..." "bool") (python "" "({lst}[len({subseq}):]=={subseq})"))
+
+(// (Global section))
+(translate ("if" cond positive negative) ("bool" "#1" "#1" "#1") (python "" "{positive} if {cond} else {negative} "))
+(translate ("print" a) ("str" "unit") (python "" "print({a})"))
+(translate ("defun" 'name' params... body) ("#2" "#3..." "#1" "unit") (python "" "def {name}({params ','}):\n\treturn {body}"))
+(translate ("proc" 'name' params... instructions...) ("str" "str..." "unit..." "topunit"))
+(translate ("let" 'name' value) ("#1" "#1" "topunit") (python "" "{name} = {value}"))
+(translate ([name] parameters...) ("#1" "#1..." "#1") (python "" "{name}({parameters ','})"))
+
+(// unit)
+(translate ("write" txt file) ("str" "str" "unit"))
+

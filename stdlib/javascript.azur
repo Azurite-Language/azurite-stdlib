@@ -1,0 +1,23 @@
+(macro (// x) ())
+
+(// (Builtin section))
+(translate ("+" a b) ("num" "num" "num") (javascript "" "{a} + {b}"))
+(translate ("-" a b) ("num" "num" "num") (javascript "" "{a} - {b}"))
+(translate ("*" a b) ("num" "num" "num") (javascript "" "{a} * {b}"))
+(translate ("/" a b) ("num" "num" "num") (javascript "" "{a} / {b}"))
+(translate ("mod" a b) ("num" "num" "num") (javascript "" "{a} % {b}"))
+(translate ("or" a b) ("num" "num" "num") (javascript "" "{a} || {b}"))
+(translate ("and" a b) ("num" "num" "num") (javascript "" "{a} && {b}"))
+(translate ("false") ("bool") (javascript "" "false"))
+(translate ("True") ("bool" "bool") (javascript "" "true"))
+(translate ("let" 'name' value) ("str" "#1" "#1") (javascript "" "var {name} = {value};"))
+(translate ("begin" x...) ("unit..." "unit") (javascript "" "{{x ';\n' '' ';'}}"))
+
+
+
+
+(// (Global section))
+(translate ("if" cond positive negative) ("bool" "#1" "#1" "#1") (javascript "" "({cond})?{positive} : {negative} "))
+(translate ("print" x) ("#1" "unit") (javascript "" "console.log({x})"))
+(translate ("for" 'variable' max body) ("string" "num" "unit" "unit") (javascript "" "for({variable} = 0; {variable} < {max}; {variable}++){{body}}"))
+(translate ("defun" 'name' params... body) ("str" "str..." "#1" "unit") (javascript "" "function {name}({params ','}) {return {body}}"))

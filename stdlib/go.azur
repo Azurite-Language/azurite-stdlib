@@ -1,0 +1,29 @@
+(macro (// x) ())
+
+(// (Operators))
+(translate ("+" a b) ("num" "num" "num") (go "" "{a} + {b}"))
+(translate ("-" a b) ("num" "num" "num") (go "" "{a} - {b}"))
+(translate ("*" a b) ("num" "num" "num") (go "" "{a} * {b}"))
+(translate ("=" a b) ("num" "num" "bool") (go "" "{a} == {b}"))
+(translate ("<" a b) ("num" "num" "bool") (go "" "{a} < {b}"))
+(translate (">" a b) ("num" "num" "bool") (go "" "{a} > {b}"))
+(translate ("<=" a b) ("num" "num" "bool") (go "" "{a} <= {b}"))
+(translate (">=" a b) ("num" "num" "bool") (go "" "{a} >= {b}"))
+(translate ("/" a b) ("num" "num" "num") (go "" "{a} / {b}"))
+(translate ("mod" a b) ("num" "num" "num") (go "" "{a} % {b}"))
+(translate ("or" a b) ("bool" "bool" "bool") (go "" "{a} || {b}"))
+(translate ("and" a b) ("bool" "bool" "bool") (go "" "{a} && {b}"))
+(translate ("false") ("bool") (go "" "false"))
+(translate ("true") ("bool") (go "" "true"))
+(translate ("not") ("bool" "bool") (go "" "!"))
+(translate ("let" 'name' value) ("str" "#1" "#1") (go "" "{name} := {value}"))
+
+
+
+
+(// (Global section))
+(translate ("if" cond positive) ("bool" "#1" "#1") (go "" "if {cond} {{positive}}"))
+(translate ("else" negative) ("bool" "#1" "#1") (go "" "else {{ negative }}"))
+(translate ("print" x) ("#1" "unit") (go "" "fmt.Println({x})"))
+(translate ("for" 'variable' max body) ("string" "num" "unit" "unit") (go "" "for {variable} := 0; {variable} < {max}; {variable}++ {{ body }}"))
+(translate ("defun" 'name' param... body) ("str" "#1..." "str" "unit") (go "" "func {name}({params $params$ ','}) {{body}}))

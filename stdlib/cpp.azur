@@ -1,0 +1,122 @@
+(macro ("//" x) ())
+(macro ("//" x...) ())
+
+(// (Builtin section))
+
+(// (vector : {a ',' 'std::vector<float>({', '})'}))
+
+(// arithmetic)
+
+(translate ("+" a...) ("num..." "num") 
+(cpp "namespace Azurite{\n\tstruct Plus{\n\t\tfloat value = 0;\n\t\tvoid operator()(const float& n){\n\t\t\tvalue+=n; }\n\t\toperator float(){ return value;\n\t\t }\n\ttemplate<typename T, typename Y = Plus>static Plus foreach(const std::vector<T>& p){return std::for_each(p.begin(), p.end(), Y());}\n\t};\n} }" 
+"( Azurite::Plus::foreach({a, ',', 'std::vector<float>({', '})'}, Azurite::Plus()) )"))
+
+(translate ("-" a...) ("num..." "num")
+(cpp "namespace Azurite{\n\tstruct Minus{\n\t\tfloat value = 0;\n\t\tMinus() = default;\n\t\tMinus(float start){\n\t\t\tvalue = start;\n\t\t}\n\t\tvoid operator()(const float& n){\n\t\t\tvalue-=n; }\n\t\toperator float(){ return value;\n\t\t }\n\ttemplate<typename T, typename Y = Minus>static Minus foreach(const std::vector<T>& p){return ( p.size() == 0 ? Y() : ( p.size() == 1 ? Y(p[0]*-1) : std::for_each(p.begin()+1, p.end(), Y(p[0])))); }\n\t};\n} }" 
+"( Azurite::Minus::foreach<Minus>({a, ',', 'std::vector<float>({', '})'} ) )"))
+
+(translate ("*" a...) ("num..." "num")
+(cpp "namespace Azurite{\n\tstruct Mult{\n\t\tfloat value = 1;\n\t\tvoid operator()(const float& n){\n\t\t\tvalue*=n; }\n\t\toperator float(){ return value;\n\t\t }\n\ttemplate<typename T, typename Y = Mult>static Mult foreach(const std::vector<T>& p){return std::for_each(p.begin(), p.end(), Y());}\n\t};\n} }" 
+"( Azurite::Mult::foreach<Mult>({a, ',', 'std::vector<float>({', '})'}) )"))
+
+(translate ("/" a...) ("num..." "num")
+(cpp "namespace Azurite{\n\tstruct Div{\n\t\tfloat value;\n\t\Div(float start){\n\t\t\tvalue = start;\n\t\t}\n\t\tvoid operator()(const float& n){\n\t\t\tvalue-=n; }\n\t\toperator float(){ return value;\n\t\t }\n\ttemplate<typename T, typename Y = Div>static Div foreach(const std::vector<T>& p){return p.size() == 0? Y(1) :(p.size == 1 ? Y(1/p[0]) : std::for_each(p.begin(), p.end(), Y(p[0])));}\n\t};\n} }" 
+"( Azurite::Div::foreach<Div>({a, ',', 'std::vector<float>({', '})'}) )")))
+
+
+
+(translate ("mod" a b) ("num" "num" "num") (cpp "" "((float)((int){a} % (int){b}))"))
+
+(// maths)
+(translate (round a) ("num" "num") (cpp "#include <cmath>" "round({a})"))
+(translate (sin a) ("num" "num") (cpp "#include <cmath>" "std::sin({a})"))
+(translate (cos a) ("num" "num") (cpp "#include <cmath>" "std::cos({a})"))
+(translate (tan a) ("num" "num") (cpp "#include <cmath" "std::tan({a})"))
+(translate (sqrt a) ("num" "num") (cpp "#include <cmath>" "std::sqrt({a})"))
+(translate (exp a) ("num" "num") (cpp "#include <cmath>" "std::exp({a})"))
+(translate (pow n e) ("num" "num" "num") (cpp "#include <cmath>" "std::pow({n}, {e})"))
+(translate (ln a) ("num" "num") (cpp "#include <cmath>" "std::ln({a})"))
+
+(// boolean)
+(translate ("=" a...) ("#1..." "bool") 
+(cpp "namespace Azurite{template<typename T> bool list_equal(const std::vector<T>& v){ auto var = v[0]; for(auto& val : v){if(val!=var) return false;} return true }}" 
+"( {a, ',', 'std::vector<float>({', '})'}.size == 0 ? true : list_equal({a, ',', 'std::vector<float>({', '})'}) )"))
+
+(translate (">" a...) ("#1..." "bool") 
+(cpp "namespace Azurite{template<typename T> bool is_sorted_strsup(const std::vector<T>& v){return std::is_sorted(v.cend(), v.cbegin());}}" 
+"is_sorted_strsup({a, ',', 'std::vector<float>({', '})'})"))
+
+(translate (">=" a...) ("#1..." "bool")
+(cpp "namespace Azurite{template<typename T> bool is_sorted_strsup(const std::vector<T>& v){return std::is_sorted(v.cend(), v.cbegin());}}" 
+"is_sorted_strsup({a, ',', 'std::vector<float>({', '})'})"))
+
+(translate ("<" a...) ("#1..." "bool")
+(cpp "namespace Azurite{template<typename T> bool is_sorted_strsup(const std::vector<T>& v){return std::is_sorted(v.cbegin(), v.cend());}}" 
+"is_sorted_strsup({a, ',', 'std::vector<float>({', '})'})"))
+
+(translate ("<=" a...) ("#1..." "bool")
+(cpp "namespace Azurite{template<typename T> bool is_sorted_strsup(const std::vector<T>& v){return std::is_sorted(v.cbegin(), v.cend());}}" 
+"is_sorted_strsup({a, ',', 'std::vector<float>({', '})'})"))
+
+(translate ("or" a...) ("bool..." "bool"))
+(translate ("and" a...) ("bool..." "bool"))
+(translate ("xor" a...) ("bool..." "bool"))
+
+(translate ("not" a) ("bool" "bool") (cpp "" "(!({a}))"))
+
+(translate ("false") ("bool") (cpp "" "false"))
+(translate ("true") ("bool") (cpp "" "true"))
+
+(// conversion)
+(translate ("NtoS" a) ("num" "str") (cpp "#include <string>" "to_string({a})"))
+(translate ("StoN" a) ("str" "num") (cpp "#include <string>" "stof({a})"))
+(translate ("NtoB" a) ("num" "bool") (cpp "" "static_cast<bool>({a}"))
+(translate ("BtoN" a) ("bool" "num") (cpp "" "static_cast<float>({a})"))
+(translate ("StoB" a) ("str" "bool") (cpp "" "({a} != "0" && {a} != "false" && {a != ""})"))
+(translate ("BtoS" a) ("str" "bool") (cpp "" "( {a} ? "true" : "false" )"))
+
+(// string)
+(translate ("is_num" a) ("str" "bool") 
+(cpp "namespace Azurite{ bool is_num(const string& s){ try{stof(s); return true; } catch(std::exception& e){ return false;} } }" 
+"Azurite::is_num({s})"))
+
+(translate ("cat" strings) ("str..." "str")
+(cpp "namespace Azurite{ string strveccat(const std::vector<string>& s){ return s } }")
+)
+
+
+(translate ("starts_with_s" string subseq) ("str" "str" "bool"))
+(translate ("ends_with_s" string subseq) ("str" "str" "bool"))
+(translate ("char" string n) ("#1..." "num" "#1"))
+(translate ("substr" string index count) ("string" "num" "num" "string"))
+
+
+(// list)
+(translate ("empty_list") ("#1..."))
+(translate ("index" n lst) ("num" "#1..." "#1"))
+(translate ("list_equal" a b) ("#1..." "#1..." bool))
+(translate ("count" a) ("#1..." "num"))
+(translate ("last_index" a) ("#1..." "num"))
+(translate ("sub" lst index count) ("#1..." "num" "num" "#1..."))
+(translate ("merge" a b) ("#1..." "#1..." "#1..."))
+(translate ("starts_with_l" lst subseq) ("#1..." "#1..." "bool"))
+(translate ("ends_with_l" lst subseq) ("#1..." "#1..." "bool"))
+
+(// (Global section))
+(translate ("if" cond positive negative) ("bool" "#1" "#1" "#1"))(macro (// x) ())
+
+(// (Global section))
+(translate ("if" cond positive negative) ("bool" "#1" "#1" "#1"))
+(translate ("print" x) ("#1" "unit") (javascript "" "console.log({x})"))
+(// (translate ("for" 'variable' max body) ("string" "num" "unit" "unit") (javascript "" "for({variable} = 0; {variable} < {max}; {variable}++){{body}}")))
+(translate ("defun" 'name' params... body) ("str" "str..." "#1" "topunit") (javascript "" "function {name}({params ','}) {return {body}}"))
+
+(translate ("defun" 'name' params... body) ("str" "str..." "#1" "topunit"))
+(translate ("proc" 'name' params... instructions...) ("str" "str..." "unit..." "topunit"))
+(translate ("let" 'name' value) ("str" "#1" "topunit"))
+
+(// unit)
+(translate ("print" x) ("str" "unit"))
+(translate ("write" txt file) ("str" "str" "unit"))
+
+(translate ("code" x...) ("topunit" ""))

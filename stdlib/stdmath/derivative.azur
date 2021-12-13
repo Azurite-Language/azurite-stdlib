@@ -1,0 +1,36 @@
+(macro ("derivative" lang)(
+
+
+(macro ("add" ('op' a b))
+        (deriv op a b)
+)
+(macro ("add" ('op' a))
+        (deriv op a)
+)
+
+
+(macro ("+" a "0") a)
+(macro ("+" "0" a) a)
+(macro ("*" a "1") a)
+(macro ("*" "1" a) a)
+(macro ("*" a "0") 0)
+(macro ("*" "0" a) 0)
+(macro ("^" x ('a')) (^ x a))
+(macro ("deriv" "+" a b) (+ (deriv a) (deriv b)))
+(macro ("deriv" "-" a b) (- (deriv a) (deriv b)))
+(macro ("deriv" "*" a b) (+ (* (deriv a) b) (* (deriv b) a)))
+(macro ("deriv" "/" a b) (/ (- (* (deriv a) b) (* (deriv b) a)) (^ b 2)))
+(macro ("deriv" "ln" a) (/ (deriv a) a))
+
+
+(macro ("deriv" "^" a b) (* b (* (deriv a) (^ a (- b 1)))))
+(macro ("deriv" ('op' a b)) (deriv op a b))
+(macro ("deriv" ('op' a )) (deriv op a))
+
+(macro ("deriv" "x") 1)
+(macro ("deriv" 'y') 0)
+
+(translate ("x") ("num"))
+
+)
+)
