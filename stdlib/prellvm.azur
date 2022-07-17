@@ -1,12 +1,21 @@
 (translate ("prellvm") () (prellvm "" "prellvm"))
 (macro ("//" x...) ())
 
+(translate ("prellvm_parse_arg" x) ("any") (prellvm "" "WITH\n{x}\nEND_WITH"))
+
+(macro ("op" op_name)
+(
+
+))
 
 (translate ("uneval" x...) ("any" "any") (prellvm "" "{x (x \x20)}"))
-(translate ("+" 'a' 'b') ("any" "any" "any") (prellvm "" "add {a} {b}"))
-(translate ("+" a 'b')  ("any" "any" "any") (prellvm "" "{a}\nadd $reg {b}"))
-(translate ("+" 'a' b)  ("any" "any" "any") (prellvm "" "{b}\nadd {a} $reg"))
-(translate ("+" a b)  ("any" "any" "any") (prellvm "" "{a}\n{b}\nadd $reg $reg"))
+(translate ("+" a b) ("any" "any" "any") (prellvm "" "ADD <eval (prellvm_parse_arg [a])> <eval (prellvm_parse_arg [b])>"))
+
+
+
+(// translate ("+" a 'b')  ("any" "any" "any") (prellvm "" "{a}\nadd $reg {b}"))
+(// translate ("+" 'a' b)  ("any" "any" "any") (prellvm "" "{b}\nadd {a} $reg"))
+(// translate ("+" a b)  ("any" "any" "any") (prellvm "" "{a}\n{b}\nadd $reg $reg"))
 
 (translate ("-" 'a' 'b') ("any" "any" "any") (prellvm "" "sub {a} {b}"))
 (translate ("-" a 'b')  ("any" "any" "any") (prellvm "" "{a}\nsub $reg {b}"))
@@ -25,13 +34,12 @@
 
 (translate ("defun" name params... body) ("any" "any" "any" "any") (prellvm "" 
 "FUNCTION {name}\n
-    USING {params (params \x20)}\n
+    USING {params (params \x20)} END_USING\n 
     {body}\n
-END_FUNCTION {name};\n"
+END_FUNCTION\n"
 ))
 
 
-(translate ("prellvm_parse_arg" x) ("any") (prellvm "" "WITH\n  {x}\nEND_WITH"))
 
 (translate ([fname] args...) ("#1" "any" "#3") (prellvm "" 
 "CALL {fname}\n
