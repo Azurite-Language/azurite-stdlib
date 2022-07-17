@@ -3,3 +3,4 @@ win-x64/
 *.json
 *.exe
 *.dll
+Azurite.pdb

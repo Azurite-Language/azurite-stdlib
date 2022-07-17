@@ -10,4 +10,10 @@ Then you can enable the feature for this file with:
 ```lisp
 (my_file lang)
 ```
-The rule is: any library must contain a macro whose name is the same as the file name. and whose take one paratemers which is the name of the language.
+
+Library: every files must contain a macro whose name is the same as the file name which take one paratemer, the name of the language.
+```lisp
+(import "filepath/foo")
+(foo azur)
+```
+Language support: once the file is import every functionality should be activated.
