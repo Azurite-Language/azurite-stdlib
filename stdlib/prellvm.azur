@@ -10,27 +10,14 @@
 
 (translate ("uneval" x...) ("any" "any") (prellvm "" "{x (x \x20)}"))
 (translate ("+" a b) ("any" "any" "any") (prellvm "" "ADD <eval (prellvm_parse_arg [a])> <eval (prellvm_parse_arg [b])>"))
+(translate ("-" a b) ("any" "any" "any") (prellvm "" "SUB <eval (prellvm_parse_arg [a])> <eval (prellvm_parse_arg [b])>"))
+(translate ("<" a b) ("any" "any" "any") (prellvm "" "LT <eval (prellvm_parse_arg [a])> <eval (prellvm_parse_arg [b])>"))
 
-
-
-(// translate ("+" a 'b')  ("any" "any" "any") (prellvm "" "{a}\nadd $reg {b}"))
-(// translate ("+" 'a' b)  ("any" "any" "any") (prellvm "" "{b}\nadd {a} $reg"))
-(// translate ("+" a b)  ("any" "any" "any") (prellvm "" "{a}\n{b}\nadd $reg $reg"))
-
-(translate ("-" 'a' 'b') ("any" "any" "any") (prellvm "" "sub {a} {b}"))
-(translate ("-" a 'b')  ("any" "any" "any") (prellvm "" "{a}\nsub $reg {b}"))
-(translate ("-" 'a' b)  ("any" "any" "any") (prellvm "" "{b}\nsub {a} $reg"))
-(translate ("-" a b)  ("any" "any" "any") (prellvm "" "{a}\n{b}\nsub $reg $reg"))
 
 (translate ("=" 'a' 'b') ("any" "any" "any") (prellvm "" "eq {a} {b}"))
 (translate ("=" a 'b')  ("any" "any" "any") (prellvm "" "{a}\neq $reg {b}"))
 (translate ("=" 'a' b)  ("any" "any" "any") (prellvm "" "{b}\neq {a} $reg"))
 (translate ("=" a b)  ("any" "any" "any") (prellvm "" "{a}\n{b}\neq $reg $reg"))
-
-(translate ("<" 'a' 'b') ("any" "any" "any") (prellvm "" "lt {a} {b}"))
-(translate ("<" a 'b')  ("any" "any" "any") (prellvm "" "{a}\nlt $reg {b}"))
-(translate ("<" 'a' b)  ("any" "any" "any") (prellvm "" "{b}\nlt {a} $reg"))
-(translate ("<" a b)  ("any" "any" "any") (prellvm "" "{a}\n{b}\nlt $reg $reg"))
 
 (translate ("defun" name params... body) ("any" "any" "any" "any") (prellvm "" 
 "FUNCTION {name}\n
@@ -44,7 +31,7 @@ END_FUNCTION\n"
 (translate ([fname] args...) ("#1" "any" "#3") (prellvm "" 
 "CALL {fname}\n
 {args ((prellvm_parse_arg args) \n \0 \n)}
-END_CALL {fname};\n"
+END_CALL\n"
 ))
 
 (translate ("if" cond then else) ("any" "any" "any" "any")
@@ -55,5 +42,5 @@ THEN\n
     {then}\n
 ELSE\n
     {else}\n
-ENDIF\n"
+END_IF\n"
 ))
