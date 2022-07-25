@@ -1,0 +1,50 @@
+(translate ("azurir") (azurir "" "azurir"))
+(macro ("//" x...) ())
+
+
+(translate ("uneval" x...) ("any" "any") (azurir "" "{x (x \x20)}"))
+
+
+(translate ("PUSHA" 'x') ("any" "any") (azurir "" ""))
+(translate ("PUSHA" x) ("any" "any") (azurir "" "{x}\n"))
+(translate ("POPA" 'x') ("any" "any") (azurir "" "{x}"))
+(translate ("POPA" x) ("any" "any") (azurir "" "POP()"))
+
+(translate ("PUSHAM" sep x...) ("any" "any") (azurir "" "{x ((PUSHA x) {sep})}"))
+(translate ("POPAM" sep x...) ("any" "any") (azurir "" "{x ((POPA x) {sep})}"))
+
+(translate ("+" a b) ("num" "num" "num") (azurir "" "<eval (PUSHAM \0 [a] [b])>PUSH(+ <eval (POPAM \x20 [a] [b])> )"))
+(translate ("-" a b) ("num" "num" "num") (azurir "" "<eval (PUSHAM \0 [a] [b])>PUSH(- <eval (POPAM \x20 [a] [b])> )"))
+(translate ("*" a b) ("num" "num" "num") (azurir "" "<eval (PUSHAM \0 [a] [b])>PUSH(* <eval (POPAM \x20 [a] [b])> )"))
+(translate ("/" a b) ("num" "num" "num") (azurir "" "<eval (PUSHAM \0 [a] [b])>PUSH(/ <eval (POPAM \x20 [a] [b])> )"))
+(translate ("=" a b) ("num" "num" "bool") (azurir "" "<eval (PUSHAM \0 [a] [b])>PUSH(= <eval (POPAM \x20 [a] [b])> )"))
+
+
+(translate ("if" cond then else) ("bool" "#1" "#1" "#1")
+(azurir "" "<eval (PUSHA [cond])>IF <eval (POPA [cond])> GOTO THEN \n
+ELSE <eval (PUSH [else])>
+GOTO END\n
+THEN <eval (PUSH [then])>
+END")
+)
+
+
+
+
+(translate ("sub" x...) ("num..." "num") (azurir "" "ADD {x (x ,)}"))
+(translate ("<=" a b) ("num..." "num") (azurir "" "BLE a,b"))
+(translate ("*" a b) ("num..." "num") (azurir "" "MUL a,b"))
+
+
+(translate ("PUSH" 'x') ("any" "any") (azurir "" "PUSH({x})\n"))
+(translate ("PUSH" x) ("any" "any") (azurir "" "{x}\n"))
+
+
+
+(translate ([fname] args...) ("#1" "any" "#3") (azurir "" "PUSH_STACK()\n{args ((PUSH args)\0)}GOTO {fname}"))
+
+(translate ("defun" name params... body) ("any" "any" "any" "any") (azurir "" "defun {name}\n
+   {params ((uneval set params POP\(\)) (\n\x20\x20\x20)) }\n
+<eval (PUSH [body])>
+GOTO POP_STACK()\n")
+)

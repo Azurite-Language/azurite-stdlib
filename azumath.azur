@@ -1,0 +1,15 @@
+(import "type")
+(import "derivative")
+(import "basic_simplification")
+(import "basic_math")
+(import "std_display")
+
+(macro ("azumath" lang)
+(
+    (basic_simplification lang)
+    (derivative lang)
+    (addition lang)
+    (std_display lang)
+    (basic_math lang)
+)
+)

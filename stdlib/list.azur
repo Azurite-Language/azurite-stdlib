@@ -1,0 +1,7 @@
+
+
+
+(macro ("list" language)
+    (translate ("merge" a... b...) ("#1..." "#1..." "#1...")
+    (language "" "{a (a \x20)} {b (b \x20)}"))
+)

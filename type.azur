@@ -1,0 +1,7 @@
+(translate ("+" a b) ("num" "num" "num"))
+(translate ("-" a b) ("num" "num" "num"))
+(translate ("*" a b) ("num" "num" "num"))
+(translate ("/" a b) ("num" "num" "num"))
+(translate ("^" a b) ("num" "num" "num"))
+(translate ("exp" u) ("num" "num" "num"))
+(translate ("ln" u) ("num" "num" "num"))

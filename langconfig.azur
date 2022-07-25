@@ -1,0 +1,10 @@
+(
+    (functions defun)
+    (macros macro)
+    (procedures proc)
+    (import import)
+    (translate translate)
+    (libpath libpath)
+    (compilation 0)
+    (variables let)
+)

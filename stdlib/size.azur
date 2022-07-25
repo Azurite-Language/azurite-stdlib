@@ -1,0 +1,4 @@
+(macro ("size" lang) (
+    (translate ("num") ("type_token") (lang "" "num"))
+    (translate ("sizeof" "num") ("num")  (lang "" "32"))
+))

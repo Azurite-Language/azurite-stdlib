@@ -1,0 +1,40 @@
+                    (macro ("//" args...) ())
+(// Example:
+
+    (defun lololol (x) (match x
+        (< 0) "NULLE"
+        0 "ONE"
+        _ "OTHERS"
+
+    ))
+
+)
+(macro ("match" value 'atom' then others...) (if (= atom value) then (match value others)))
+(macro ("match" value ('atom' then others...)) (if (= atom value) then (match value others)))
+(macro ("match" value (op whatever) then others...) (if (op whatever value) then (match value others)))
+(macro ("match" value ((op whatever) then others...)) (if (op whatever value) then (match value others)))
+(macro ("match" value ("_" then)) then)
+
+
+(macro
+    ("cases"
+        'val'
+        'param'
+    )
+    
+    (
+        (defun eqv_case (param) (= param val))
+    
+        (defun inf_case (param) (< param val))
+
+        (defun sup_case (param) (> param val))
+
+        (defun sinf_case (param) (<= param val))
+
+        (defun ssup_case (param) (>= param val))
+
+        (defun diff_case (param) (not (= param val)))
+
+    )
+    
+)
