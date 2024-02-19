@@ -1,4 +1,6 @@
 (translate ("prellvm") () (prellvm "" "prellvm"))
+(import "stdlib/size")
+(size prellvm)
 (macro ("//" x...) ())
 
 (translate ("prellvm_parse_arg" x) ("any") (prellvm "" "WITH\n{x}\nEND_WITH"))
