@@ -13,27 +13,24 @@
 (translate ("PUSHAM" sep x...) ("any" "any") (azurir "" "{x ((PUSHA x) {sep})}"))
 (translate ("POPAM" sep x...) ("any" "any") (azurir "" "{x ((POPA x) {sep})}"))
 
-(translate ("+" a b) ("num" "num" "num") (azurir "" "<eval (PUSHAM \0 [a] [b])>PUSH(+ <eval (POPAM \x20 [a] [b])> )"))
-(translate ("-" a b) ("num" "num" "num") (azurir "" "<eval (PUSHAM \0 [a] [b])>PUSH(- <eval (POPAM \x20 [a] [b])> )"))
-(translate ("*" a b) ("num" "num" "num") (azurir "" "<eval (PUSHAM \0 [a] [b])>PUSH(* <eval (POPAM \x20 [a] [b])> )"))
-(translate ("/" a b) ("num" "num" "num") (azurir "" "<eval (PUSHAM \0 [a] [b])>PUSH(/ <eval (POPAM \x20 [a] [b])> )"))
-(translate ("=" a b) ("num" "num" "bool") (azurir "" "<eval (PUSHAM \0 [a] [b])>PUSH(= <eval (POPAM \x20 [a] [b])> )"))
-
+(translate ("+" a b) ("num" "num" "num") (azurir "" "<eval (PUSHAM \0 ([a] [b]))>PUSH(ADD <eval (POPAM \x20 ([a] [b]))> )"))
+(translate ("-" a b) ("num" "num" "num") (azurir "" "<eval (PUSHAM \0 ([a] [b]))>PUSH(SUB <eval (POPAM \x20 ([a] [b]))> )"))
+(translate ("*" a b) ("num" "num" "num") (azurir "" "<eval (PUSHAM \0 ([a] [b]))>PUSH(MULT <eval (POPAM \x20 ([a] [b]))> )"))
+(translate ("/" a b) ("num" "num" "num") (azurir "" "<eval (PUSHAM \0 ([a] [b]))>PUSH(DIV <eval (POPAM \x20 ([a] [b]))> )"))
+(translate ("=" a b) ("num" "num" "bool") (azurir "" "<eval (PUSHAM \0 ([a] [b]))>PUSH(EQ <eval (POPAM \x20 ([a] [b]))> )"))
+(translate ("<" a b) ("num" "num" "bool") (azurir "" "<eval (PUSHAM \0 ([a] [b]))>PUSH(LT <eval (POPAM \x20 ([a] [b]))> )"))
 
 (translate ("if" cond then else) ("bool" "#1" "#1" "#1")
-(azurir "" "<eval (PUSHA [cond])>IF <eval (POPA [cond])> GOTO THEN \n
-ELSE <eval (PUSH [else])>
-GOTO END\n
+(azurir "" "<eval (PUSHA [cond])>IF GOTO_RELATIVE THEN \n
+<eval (PUSH [else])>
 THEN <eval (PUSH [then])>
-END")
+ENDIF")
 )
 
 
 
 
 (translate ("sub" x...) ("num..." "num") (azurir "" "ADD {x (x ,)}"))
-(translate ("<=" a b) ("num..." "num") (azurir "" "BLE a,b"))
-(translate ("*" a b) ("num..." "num") (azurir "" "MUL a,b"))
 
 
 (translate ("PUSH" 'x') ("any" "any") (azurir "" "PUSH({x})\n"))
@@ -41,10 +38,12 @@ END")
 
 
 
-(translate ([fname] args...) ("#1" "any" "#3") (azurir "" "PUSH_STACK()\n{args ((PUSH args)\0)}GOTO {fname}"))
+(translate ([fname] args...) ("#1" "any" "#3") (azurir "" "PUSH_CALLSTACK()\n{args ((PUSH args)\0)}JSR {fname}"))
 
 (translate ("defun" name params... body) ("any" "any" "any" "any") (azurir "" "defun {name}\n
-   {params ((uneval set params POP\(\)) (\n\x20\x20\x20)) }\n
+   {params ((uneval (set params)) (\n\x20\x20\x20)) }\n
 <eval (PUSH [body])>
-GOTO POP_STACK()\n")
+POP_CALLSTACK()\n")
 )
+
+(translate ("main" a...) ("any" "any") (azurir "GOTO main" "/main\n{a (a \n)}"))
