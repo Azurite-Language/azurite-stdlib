@@ -50,3 +50,10 @@ ELSE\n
     {else}\n
 END_IF\n"
 ))
+
+(translate ("main" a...) ("any" "any") (prellvm "" "
+FUNCTION main\n
+    USING END_USING\n
+    RETURN num\n
+    {a (a \n)}\n
+END_FUNCTION\n"))
