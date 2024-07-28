@@ -1,0 +1,13 @@
+(import "eval/addition")
+(import "eval/and")
+(import "eval/or")
+(import "eval/equal")
+(import "eval/if")
+
+(macro ("azeval" 'lang') (
+    (eval/addition lang)
+    (eval/and lang)
+    (eval/or lang)
+    (eval/equal lang)
+    (eval/if lang)
+))

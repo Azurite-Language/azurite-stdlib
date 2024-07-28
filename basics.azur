@@ -1,0 +1,77 @@
+(macro ("//" a...) ())
+(import "util/is_number")
+(import "eval")
+
+(macro ("can_eval" ('op' a b)) (can_eval op a b))
+(macro ("can_eval" ('op' a b c)) (can_eval op a b c))
+
+(macro ("basics" 'lang')
+(
+    (util/is_number lang)
+    (azeval lang)
+    (// atom)
+    (translate ("can_eval" 'a') ("any" "any") (lang "" "<eval (is_number {a})>"))
+
+    (// Binary operators )
+    (translate ("can_eval" "=" a b) ("any" "any" "any") (lang "" "<eval (eval and (can_eval [a]) (can_eval [b]))>"))
+    (translate ("can_eval" "+" a b) ("any" "any" "any") (lang "" "<eval (eval and (can_eval [a]) (can_eval [b]))>"))
+    (translate ("can_eval" "-" a b) ("any" "any" "any") (lang "" "<eval (eval and (can_eval [a]) (can_eval [b]))>"))
+    (translate ("can_eval" "*" a b) ("any" "any" "any") (lang "" "false"))
+    (translate ("can_eval" "/" a b) ("any" "any" "any") (lang "" "false"))
+    (translate ("can_eval" "and" a b) ("any" "any" "any") (lang "" "<eval (eval and (can_eval [a]) (can_eval [b]))>"))
+
+    (// if)
+    (translate ("can_eval" "if" "true" "true" a b) ("any" "any" "any") (lang "" "<eval (can_eval [a])>"))
+    (translate ("can_eval" "if" "true" "false" a b) ("any" "any" "any") (lang "" "<eval (can_eval [b])>"))
+    (translate ("can_eval" "if" "true" cond a b) ("any" "any" "any") (lang "" "<eval (can_eval if true {cond} [a] [b])>"))
+    (translate ("can_eval" "if" "false" cond a b) ("any" "any" "any") (lang "" "false"))
+
+    (translate ("can_eval" "if" cond a b) ("any" "any" "any") (lang "" "
+    <eval (can_eval if
+        <eval (can_eval [cond])>
+        [cond]
+        [a]
+        [b]
+    )>"))
+
+(// ---------Try eval section --------)
+
+    (// Binary operators)
+
+    (translate ("try_eval" "=" "true" a b) ("any" "any" "any") (lang "" "<eval (eval = {a} {b})>"))
+    (translate ("try_eval" "+" "true" a b) ("any" "any" "any") (lang "" "<eval (eval + {a} {b})>"))
+    (translate ("try_eval" "-" "true" a b) ("any" "any" "any") (lang "" "<eval (eval - {a} {b})>"))
+    (translate ("try_eval" "*" "true" a b) ("any" "any" "any") (lang "" "<eval (eval * {a} {b})>"))
+    (translate ("try_eval" "/" "true" a b) ("any" "any" "any") (lang "" "<eval (eval / {a} {b})>"))
+    (translate ("try_eval" "and" "true" a b) ("any" "any" "any") (lang "" "<eval (eval and {a} {b})>"))
+    (translate ("try_eval" "if" "true" cond a b) ("any" "any" "any") (lang "" "<eval (eval if {cond} [a] [b])>"))
+    
+    
+    (translate ("try_eval" "=" "false" a b) ("any" "any" "any") (lang "" "<eval (print = [a] [b])>"))
+    (translate ("try_eval" "+" "false" a b) ("any" "any" "any") (lang "" "<eval (print + [a] [b])>"))
+    (translate ("try_eval" "-" "false" a b) ("any" "any" "any") (lang "" "<eval (print - [a] [b])>"))
+    (translate ("try_eval" "*" "false" a b) ("any" "any" "any") (lang "" "<eval (print * [a] [b])>"))
+    (translate ("try_eval" "/" "false" a b) ("any" "any" "any") (lang "" "<eval (print / [a] [b])>"))
+    (translate ("try_eval" "and" "false" a b) ("any" "any" "any") (lang "" "<eval (print and [a] [b])>"))
+    
+    (translate ("try_eval" "if" "false" cond a b) ("any" "any" "any") (lang "" "<eval (reduce if (can_eval [cond]) [cond] [a] [b])>"))
+    
+    
+    (// reduce if)
+    (translate ("reduce" "if" "true" "true" a b) ("any" "any" "any" "any") (lang "" "{a}"))
+    (translate ("reduce" "if" "true" "false" a b) ("any" "any" "any" "any") (lang "" "{b}"))
+    (translate ("reduce" "if" "true" cond a b) ("any" "any" "any" "any") (lang "" "<eval (reduce if true {cond} [a] [b])>"))
+    (translate ("reduce" "if" "false" cond a b) ("any" "any" "any" "any") (lang "" "<eval (print if [cond] [a] [b])>)"))
+    (translate ("reduce" "if" condEval cond a b) ("any" "any" "any" "any") (lang "" "<eval (reduce if {condEval} [cond] [a] [b])>"))
+
+
+
+    (// Keyword definition)
+    (translate ("=" a b) ("any" "any" "any") (lang "" "<eval (try_eval = <eval (can_eval = [a] [b])> [a] [b])>"))
+    (translate ("+" a b) ("any" "any" "any") (lang "" "<eval (try_eval + <eval (can_eval + [a] [b])> [a] [b])>"))
+    (translate ("-" a b) ("any" "any" "any") (lang "" "<eval (try_eval + <eval (can_eval + [a] [b])> [a] [b])>"))
+    (translate ("*" a b) ("any" "any" "any") (lang "" "<eval (try_eval + <eval (can_eval + [a] [b])> [a] [b])>"))
+    (translate ("/" a b) ("any" "any" "any") (lang "" "<eval (try_eval + <eval (can_eval + [a] [b])> [a] [b])>"))
+    (translate ("and" a b) ("any" "any" "any") (lang "" "<eval (try_eval and <eval (can_eval and [a] [b])> [a] [b])>"))
+    (translate ("if" cond a b) ("any" "any" "any") (lang "" "<eval (try_eval if <eval (can_eval if [cond] [a] [b])> [cond] [a] [b])>"))
+))

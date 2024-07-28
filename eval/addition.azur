@@ -1,4 +1,4 @@
-(macro ("addition" lang)
+(macro ("eval/addition" lang)
 (
 (translate ("std_add" "--" "-|x|") ("num" "num") (lang "" "-<eval (std_add ++ {x})>"))
 (translate ("std_add" "--" "10")("num" "num")(lang "" "9"))
@@ -54,7 +54,6 @@
 
 (translate ("std_add" "++" x)("num" "num") (lang "" "<eval (std_add ++ {x})>"))
 
-(// ADDITION GENERATION)
 (translate ("std_add" "+" x1 "0") ("num" "num") (lang "" "{x1}"))
 (translate ("std_add" "+" "0" x1) ("num" "num") (lang "" "{x1}"))
 (translate ("std_add" "+" x1 "-0") ("num" "num") (lang "" "{x1}"))
@@ -64,9 +63,8 @@
 (translate ("std_add" "+" "-|x1|" 'x2') ("num" "num" "num") (lang "" "<eval (std_add + -<eval (std_add -- {x1})> (std_add -- {x2}))>"))
 (translate ("std_add" "+" 'x1' 'x2') ("num" "num" "num") (lang "" "<eval (std_add + <eval (std_add ++ {x1})> <eval (std_add -- {x2})>)>"))
 (translate ("std_add" "+" x1 x2) ("num" "num" "num") (lang "" "(+ <eval [x1]> <eval [x2]>)"))
-(translate ("std_add" "add" x1 x2) ("num" "num" "num") (lang "" "<eval (std_add + <eval (std_compute [x1])> <eval (std_compute [x2])>)>"))
+(translate ("std_add" "add" x1 x2) ("num" "num" "num") (lang "" "<eval (std_add + <eval (eval [x1])> <eval (eval [x2])>)>"))
 
-(// SOUSTRACTION GENERATION)
 (translate ("std_add" "-" x1 "0") ("num" "num") (lang "" "{x1}"))
 (translate ("std_add" "-" "0" x1) ("num" "num") (lang "" "-{x1}"))
 (translate ("std_add" "-" x1 "-0") ("num" "num") (lang "" "{x1}"))
@@ -75,39 +73,30 @@
 (translate ("std_add" "-" "-|x1|" "|x2|") ("num" "num" "num") (lang "" "-<eval (std_add + {x1} {x2})>"))
 (translate ("std_add" "-" "|x1|" "-|x2|") ("num" "num" "num") (lang "" "<eval (std_add + {x1} {x2})>"))
 (translate ("std_add" "-" 'x1' 'x2') ("num" "num" "num") (lang "" "<eval (std_add - <eval (std_add -- {x1})> <eval (std_add -- {x2})>)>"))
-(translate ("std_add" "minus" "-" x1 x2) ("num" "num" "num") (lang "" "<eval (std_add - <eval (std_compute [x1])> <eval (std_compute [x2])>)>"))
+(translate ("std_add" "minus" "-" x1 x2) ("num" "num" "num") (lang "" "<eval (std_add - <eval (eval [x1])> <eval (eval [x2])>)>"))
 (translate ("std_default" default) ("any" "any" "any") (lang "" "{default}"))
 
-(macro ("std_compute" ("+" a b))
+(macro ("eval" ("+" a b))
         (std_add add a b)
 )
-(macro ("std_compute" ("-" a b))
+(macro ("eval" ("-" a b))
         (std_add minus - a b)
 )
-(macro ("std_compute" ('op' a b))
-        (op (std_compute a) (std_compute b))
+(macro ("eval" ('op' a b))
+        (op (eval a) (eval b))
 )
 
-(macro ("std_compute" 'op' a b)
-        (std_add op a b)
+(macro ("eval" "+" a b)
+        (std_add + a b)
 )
 
-(macro ("std_compute" 'op' a)
-        (std_add op a b)
+(macro ("eval" "+" a b)
+        (std_add + a b)
 )
 
-(macro ("std_compute" 'x') x)
+(macro ("eval" 'x') x)
 
-(macro ("std_compute" ('ope' ba))
-        (std_add ope ba)
-)
-(macro ("std_compute" 'ope' ba)
-        (std_add ope ba)
-)
-
-(translate ("compute" a) ("any" "any" "any") (lang "" "<eval (std_compute {a})>"))
-
-
+(translate ("compute" a) ("any" "any" "any") (lang "" "<eval (eval {a})>"))
 )
 
 )

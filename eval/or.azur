@@ -1,0 +1,9 @@
+
+(macro ("eval/or" lang)(
+    (translate ("eval" "or" "true" "true") ("any" "any" "any") (lang "" "true"))
+    (translate ("eval" "or" "true" 'b') ("any" "any" "any") (lang "" "true"))
+    (translate ("eval" "or" 'a' "true") ("any" "any" "any") (lang "" "true"))
+    (translate ("eval" "or" 'a' 'b') ("any" "any" "any") (lang "" "false"))
+
+    (translate ("eval" "or" a b) ("any" "any" "any") (lang "" "<eval (eval or {a} {b})>"))
+))

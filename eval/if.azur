@@ -1,0 +1,5 @@
+(macro ("eval/if" lang)(
+    (translate ("eval" "if" "true" a b) ("any" "any" "any") (lang "" "{a}"))
+    (translate ("eval" "if" "false" a b) ("any" "any" "any") (lang "" "{b}"))
+    (translate ("eval" "if" cond a b) ("any" "any" "any") (lang "" "<eval (if {cond} [a] [b])>"))
+))
