@@ -1,0 +1,6 @@
+
+(macro ("util/list_manip" 'lang')(
+    
+    (macro ("first" callme (head rest...))(callme head rest))
+    (macro ("first" callme (head)) (callme head))
+))

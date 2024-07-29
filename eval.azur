@@ -3,6 +3,7 @@
 (import "eval/or")
 (import "eval/equal")
 (import "eval/if")
+(import "eval/defun")
 
 (macro ("azeval" 'lang') (
     (eval/addition lang)
@@ -10,4 +11,5 @@
     (eval/or lang)
     (eval/equal lang)
     (eval/if lang)
+    (eval/defun lang)
 ))

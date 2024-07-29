@@ -1,0 +1,26 @@
+(macro ("eval/defun" 'lang')(
+
+    (macro ("defun" 'name' params body)(
+        (print function name params body)
+        (unroll_var @name@ params)
+        (macro ("apply_fun" "@name@" params) body)
+        (macro ("body" "@name@") body)
+        (macro ("is_pure" "@name@" ("@name@" rest...)) true)
+        (translate ("is_pure" "@name@") ("any") (lang "" "<eval (is_pure @name@ @body@)>"))
+        (translate ("is_var" "@name@" 'a') ("any") (lang "" "false"))
+        (translate ("@name@" args) ("any" "any" "any") (lang "" "<eval (try_eval fcall (can_eval @name@ [args]) @name@ [args]) >"))
+        (translate ("can_eval" "@name@" args) ("any" "any" "any") (lang "" "<eval (eval and (is_pure @name@) (first can_eval_list [args]))>"))
+        (macro ("can_eval" ("@name@" args)) (can_eval name args))
+        (translate ("eval" "@name@" args...)  ("any" "any" "any") (lang "" "<eval (apply_fun @name@ ({args args \x20}))>"))
+    ))
+
+    (macro ("unroll_var" 'name' (params rest...)) (
+        (translate ("is_var" "@name@" "@params@") ("any") (lang "" "true"))
+        (unroll_var name rest)
+    ))
+
+    (macro ("unroll_var" 'name' (params)) (
+        (translate ("is_var" "@name@" "@params@") ("any") (lang "" "true"))
+    ))
+
+))

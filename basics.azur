@@ -1,5 +1,6 @@
 (macro ("//" a...) ())
 (import "util/is_number")
+(import "util/list_manip")
 (import "eval")
 
 (macro ("can_eval" ('op' a b)) (can_eval op a b))
@@ -8,25 +9,29 @@
 (macro ("basics" 'lang')
 (
     (util/is_number lang)
+    (util/list_manip lang)
     (azeval lang)
-    (// atom)
-    (translate ("can_eval" 'a') ("any" "any") (lang "" "<eval (is_number {a})>"))
 
-    (// Binary operators )
-    (translate ("can_eval" "=" a b) ("any" "any" "any") (lang "" "<eval (eval and (can_eval [a]) (can_eval [b]))>"))
-    (translate ("can_eval" "+" a b) ("any" "any" "any") (lang "" "<eval (eval and (can_eval [a]) (can_eval [b]))>"))
-    (translate ("can_eval" "-" a b) ("any" "any" "any") (lang "" "<eval (eval and (can_eval [a]) (can_eval [b]))>"))
+    (// ------- is_pure ------- //)
+    (macro ("is_pure" context ('bin' a b)) (is_pure context bin a b))
+    (macro ("is_pure" context ('tern' cond a b)) (is_pure context tern cond a b))
+
+    (translate ("is_pure" 'curr_context' 'bin' a b) ("any" "any" "any" "any") (azur "" "<eval (eval and (is_pure {curr_context} [a]) (is_pure {curr_context} [b]))>"))
+    (translate ("is_pure" 'curr_context' 'tern' cond a b) ("any" "any" "any" "any" "any") (azur "" "<eval (eval and (<eval (eval and (is_pure {curr_context} [a]) (is_pure {curr_context} [b]))>) (is_pure {curr_context} [cond]))>"))
+    (translate ("is_pure" 'curr_context' 'a') ("any" "any" "any") (azur "" "<eval (eval or (is_number {a}) (is_var {curr_context} {a}))>"))
+
+    (// ------- can_eval ------- //)
+    (translate ("can_eval" 'a') ("any" "any") (lang "" "<eval (is_number {a})>"))
+    (translate ("can_eval" 'bin' a b) ("any" "any" "any" "any") (lang "" "<eval (eval and (can_eval [a]) (can_eval [b]))>"))
     (translate ("can_eval" "*" a b) ("any" "any" "any") (lang "" "false"))
     (translate ("can_eval" "/" a b) ("any" "any" "any") (lang "" "false"))
-    (translate ("can_eval" "and" a b) ("any" "any" "any") (lang "" "<eval (eval and (can_eval [a]) (can_eval [b]))>"))
 
-    (// if)
     (translate ("can_eval" "if" "true" "true" a b) ("any" "any" "any") (lang "" "<eval (can_eval [a])>"))
     (translate ("can_eval" "if" "true" "false" a b) ("any" "any" "any") (lang "" "<eval (can_eval [b])>"))
     (translate ("can_eval" "if" "true" cond a b) ("any" "any" "any") (lang "" "<eval (can_eval if true {cond} [a] [b])>"))
     (translate ("can_eval" "if" "false" cond a b) ("any" "any" "any") (lang "" "false"))
 
-    (translate ("can_eval" "if" cond a b) ("any" "any" "any") (lang "" "
+    (translate ("can_eval" "if" cond a b) ("any" "any" "any" "any") (lang "" "
     <eval (can_eval if
         <eval (can_eval [cond])>
         [cond]
@@ -34,28 +39,21 @@
         [b]
     )>"))
 
-(// ---------Try eval section --------)
+    (translate ("can_eval_list" element list) ("any" "any") (lang "" "<eval (eval and (can_eval [element]) (first can_eval_list [list]))>"))
+    (translate ("can_eval_list" element) ("any" "any") (lang "" "<eval (can_eval [element])>"))
 
-    (// Binary operators)
 
-    (translate ("try_eval" "=" "true" a b) ("any" "any" "any") (lang "" "<eval (eval = {a} {b})>"))
-    (translate ("try_eval" "+" "true" a b) ("any" "any" "any") (lang "" "<eval (eval + {a} {b})>"))
-    (translate ("try_eval" "-" "true" a b) ("any" "any" "any") (lang "" "<eval (eval - {a} {b})>"))
-    (translate ("try_eval" "*" "true" a b) ("any" "any" "any") (lang "" "<eval (eval * {a} {b})>"))
-    (translate ("try_eval" "/" "true" a b) ("any" "any" "any") (lang "" "<eval (eval / {a} {b})>"))
-    (translate ("try_eval" "and" "true" a b) ("any" "any" "any") (lang "" "<eval (eval and {a} {b})>"))
-    (translate ("try_eval" "if" "true" cond a b) ("any" "any" "any") (lang "" "<eval (eval if {cond} [a] [b])>"))
+    (// ------- try_eval ------- //)
+    (translate ("try_eval" 'bin' "true" a b) ("any" "any" "any" "any") (lang "" "<eval (eval {bin} {a} {b})>"))
+    (translate ("try_eval" 'bin' "false" a b) ("any" "any" "any" "any") (lang "" "<eval (print {bin} [a] [b])>"))    
     
-    
-    (translate ("try_eval" "=" "false" a b) ("any" "any" "any") (lang "" "<eval (print = [a] [b])>"))
-    (translate ("try_eval" "+" "false" a b) ("any" "any" "any") (lang "" "<eval (print + [a] [b])>"))
-    (translate ("try_eval" "-" "false" a b) ("any" "any" "any") (lang "" "<eval (print - [a] [b])>"))
-    (translate ("try_eval" "*" "false" a b) ("any" "any" "any") (lang "" "<eval (print * [a] [b])>"))
-    (translate ("try_eval" "/" "false" a b) ("any" "any" "any") (lang "" "<eval (print / [a] [b])>"))
-    (translate ("try_eval" "and" "false" a b) ("any" "any" "any") (lang "" "<eval (print and [a] [b])>"))
-    
+    (translate ("try_eval" "if" "true" cond a b) ("any" "any" "any" "any") (lang "" "<eval (eval if {cond} [a] [b])>"))
     (translate ("try_eval" "if" "false" cond a b) ("any" "any" "any") (lang "" "<eval (reduce if (can_eval [cond]) [cond] [a] [b])>"))
     
+    (translate ("try_eval" "fcall" "true" fname args) ("any" "any" "any") (azur "" "<eval (eval {fname} [args])>"))
+    (translate ("try_eval" "fcall" "false" fname args) ("any" "any" "any") (azur "" "<eval (print fcall {fname} [args])>"))
+    (translate ("try_eval" "fcall" is_pure fname args) ("any" "any" "any" "any") (azur "" "<eval (try_eval fcall {is_pure} {fname} [args])>"))
+
     
     (// reduce if)
     (translate ("reduce" "if" "true" "true" a b) ("any" "any" "any" "any") (lang "" "{a}"))
@@ -69,9 +67,9 @@
     (// Keyword definition)
     (translate ("=" a b) ("any" "any" "any") (lang "" "<eval (try_eval = <eval (can_eval = [a] [b])> [a] [b])>"))
     (translate ("+" a b) ("any" "any" "any") (lang "" "<eval (try_eval + <eval (can_eval + [a] [b])> [a] [b])>"))
-    (translate ("-" a b) ("any" "any" "any") (lang "" "<eval (try_eval + <eval (can_eval + [a] [b])> [a] [b])>"))
-    (translate ("*" a b) ("any" "any" "any") (lang "" "<eval (try_eval + <eval (can_eval + [a] [b])> [a] [b])>"))
-    (translate ("/" a b) ("any" "any" "any") (lang "" "<eval (try_eval + <eval (can_eval + [a] [b])> [a] [b])>"))
+    (translate ("-" a b) ("any" "any" "any") (lang "" "<eval (try_eval - <eval (can_eval - [a] [b])> [a] [b])>"))
+    (translate ("*" a b) ("any" "any" "any") (lang "" "<eval (try_eval * <eval (can_eval * [a] [b])> [a] [b])>"))
+    (translate ("/" a b) ("any" "any" "any") (lang "" "<eval (try_eval / <eval (can_eval / [a] [b])> [a] [b])>"))
     (translate ("and" a b) ("any" "any" "any") (lang "" "<eval (try_eval and <eval (can_eval and [a] [b])> [a] [b])>"))
     (translate ("if" cond a b) ("any" "any" "any") (lang "" "<eval (try_eval if <eval (can_eval if [cond] [a] [b])> [cond] [a] [b])>"))
 ))
