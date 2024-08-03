@@ -9,9 +9,15 @@
         (translate ("is_pure" "@name@") ("any") (lang "" "<eval (is_pure @name@ @body@)>"))
         (translate ("is_var" "@name@" 'a') ("any") (lang "" "false"))
         (translate ("@name@" args) ("any" "any" "any") (lang "" "<eval (try_eval fcall (can_eval @name@ [args]) @name@ [args]) >"))
-        (translate ("can_eval" "@name@" args) ("any" "any" "any") (lang "" "<eval (eval and (is_pure @name@) (first can_eval_list [args]))>"))
+        (translate ("can_eval" "@name@" args) ("any" "any" "any") (lang "" "<eval (eval and <eval (eval and (is_pure @name@) (first can_eval_list [args]))> (can_eval_context @name@ (body @name@)))>"))
+
+        (translate ("can_eval_context" "@name@" "@name@" args) ("any" "any" "any") (lang "" "<eval (first2 can_eval_list_context @name@ [args])>"))
+        (translate ("can_eval_context" 'context' "@name@" args) ("any" "any" "any") (lang "" "<eval (eval and <eval (eval and (is_pure @name@) (first2 can_eval_list_context {context} [args]))> (can_eval_context @name@ (body @name@)))>"))
         (macro ("can_eval" ("@name@" args)) (can_eval name args))
-        (translate ("eval" "@name@" args...)  ("any" "any" "any") (lang "" "<eval (apply_fun @name@ ({args args \x20}))>"))
+        (macro ("can_eval_context" 'context' ("@name@" args)) (can_eval_context context name args))
+        (macro ("print" ("@name@" args)) (print fcall name args))
+        (macro ("eval" ("@name@" args)) (eval name args))
+        (translate ("eval" "@name@" args...)  ("any" "any" "any") (lang "" "<eval (eval (apply_fun @name@ ({args ((eval args) \x20)})))>"))
     ))
 
     (macro ("unroll_var" 'name' (params rest...)) (

@@ -20,5 +20,6 @@
     (translate ("eval" "=" "|x|7" "|y|7") ("any" "any") (lang "" "<eval (eval = {x} {y})>"))
     (translate ("eval" "=" "|x|8" "|y|8") ("any" "any") (lang "" "<eval (eval = {x} {y})>"))
     (translate ("eval" "=" "|x|9" "|y|9") ("any" "any") (lang "" "<eval (eval = {x} {y})>"))
-    (translate ("eval" "=" a b) ("any" "any") (lang "" "false"))
+    (translate ("eval" "=" 'a' 'b') ("any" "any") (lang "" "false"))
+    (translate ("eval" "=" a b) ("any" "any") (lang "" "<eval (eval (= <eval (eval [a])> <eval (eval [b])>))>"))
 ))

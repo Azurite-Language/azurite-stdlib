@@ -1,0 +1,55 @@
+(translate ("azullvm") () (azullvm "" "azullvm"))
+(import "basics")
+(basics azullvm)
+
+(macro ("//" x...) ())
+
+(translate ("azullvm_parse_arg" x) ("any") (azullvm "" "WITH\n{x}\nEND_WITH"))
+(translate ("azullvm_parse_func_arg" x) ("any") (azullvm "" "\n{x} num"))
+
+(translate ("uneval" x...) ("any" "any") (azullvm "" "{x (x \x20)}"))
+(translate ("print" "+" a b) ("any" "any" "any") (azullvm "" "ADD <eval (azullvm_parse_arg [a])> <eval (azullvm_parse_arg [b])>"))
+(translate ("print" "-" a b) ("any" "any" "any") (azullvm "" "SUB <eval (azullvm_parse_arg [a])> <eval (azullvm_parse_arg [b])>"))
+(translate ("print" "<" a b) ("any" "any" "any") (azullvm "" "LT <eval (azullvm_parse_arg [a])> <eval (azullvm_parse_arg [b])>"))
+(translate ("print" "*" a b) ("any" "any" "any") (azullvm "" "MUL <eval (azullvm_parse_arg [a])> <eval (azullvm_parse_arg [b])>"))
+(translate ("print" "=" a b) ("any" "any" "any") (azullvm "" "EQ <eval (azullvm_parse_arg [a])> <eval (azullvm_parse_arg [b])>"))
+
+
+(translate ("print" "function" name params... body) ("any" "any" "any" "any") (azullvm "" 
+"FUNCTION {name}\n
+    USING {params ((azullvm_parse_func_arg params) \x20)} END_USING\n 
+    RETURN num\n
+    {body}\n
+END_FUNCTION\n"
+))
+
+(translate ("create_list" type elt_count) ("any" "any" "list") (azullvm "" "ALLOCATE TYPE {type} END_TYPE COUNT {elt_count} END_COUNT"))
+(translate ("nth" list pos) ("list" "any" "any") (azullvm "" "NTH <eval (azullvm_parse_arg [list])> <eval (azullvm_parse_arg [pos])>"))
+(translate ("set" list pos val) ("list" "any" "any" "toplevel") (azullvm "" "SET WITH <eval (azullvm_parse_arg [list])> <eval (azullvm_parse_arg [pos])> <eval (azullvm_parse_arg [val])> END_WITH"))
+(translate ("do" body... return) ("any" "#1" "#1") (azullvm "" "DO WITH {body ((azullvm_parse_arg body) \n)} <eval (azullvm_parse_arg [return])> END_WITH"))
+
+
+
+(translate ("print" "fcall" 'fname' args...) ("#1" "any" "#1") (azullvm "" 
+"CALL {fname}\n
+{args ((azullvm_parse_arg args) \n \0 \n)}
+END_CALL\n"
+))
+
+(translate ("print" "if" cond then else) ("any" "#1" "#1" "#1")
+(azullvm "" 
+"IF RETURN num\n
+    {cond}\n
+THEN\n
+    {then}\n
+ELSE\n
+    {else}\n
+END_IF\n"
+))
+
+(translate ("main" a...) ("any" "any") (azullvm "" "
+FUNCTION main\n
+    USING END_USING\n
+    RETURN num\n
+    {a (a \n)}\n
+END_FUNCTION\n"))

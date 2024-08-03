@@ -1,6 +1,11 @@
 
 (macro ("util/list_manip" 'lang')(
     
-    (macro ("first" callme (head rest...))(callme head rest))
-    (macro ("first" callme (head)) (callme head))
+    (macro ("first" 'callme1' (head rest...))(callme1 head rest))
+    (macro ("first" 'callme1' (head)) (callme1 head))
+    (macro ("first2" 'callme1' 'callme2' (head rest...))(callme1 callme2 head rest))
+    (macro ("first2" 'callme1' 'callme2' (head))(callme1 callme2 head))
+    
+    (macro ("apply" 'func' (head rest...)) ((func head) (apply func rest)))
+    (macro ("apply" 'func' (head)) (func head))
 ))
